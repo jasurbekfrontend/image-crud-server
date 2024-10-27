@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors())
 connectDB();
 const multer = require('multer');
-const upload = multer();
+const upload = multer({ dest: 'uploads/' });
 // user routes
 app.post("/user/register", createUser);
 app.post("/user/login", loginUser);
@@ -21,8 +21,8 @@ app.get("/user/:id", getUserProfile);
 app.get("/product", getAllProducts)
 app.get("/images/:file_name", getImage);
 app.post("/product", auth, upload.single('image'), createProduct);
-app.put("/product/:id", updateProduct);
-app.delete("/product/:id", deleteProduct);
+app.put("/product/:id", auth, updateProduct);
+app.delete("/product/:id", auth, deleteProduct);
 
 
 const PORT = process.env.PORT || 8080;

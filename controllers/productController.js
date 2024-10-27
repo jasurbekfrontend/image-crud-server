@@ -26,7 +26,7 @@ exports.getImage = async (req, res) => {
 }
 exports.createProduct = async (req, res) => {
     try {
-        const file = req.file; 
+        const file = req.file;
         const fileName = file.originalname;
 
         const fileBuffer = fs.readFileSync(file.path);
@@ -41,11 +41,11 @@ exports.createProduct = async (req, res) => {
         const imageUrl = `http://localhost:8080/images/${fileName}`;
 
         const product = new productModel({
-            ...req.body, 
-            image: imageUrl, 
+            ...req.body,
+            image: imageUrl,
         });
         const newProduct = await product.save();
-
+        fs.unlinkSync(file.path);
         return res.status(201).json(newProduct);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -53,9 +53,14 @@ exports.createProduct = async (req, res) => {
 };
 
 exports.updateProduct = async (req, res) => {
+    const product = productModel.findById(req.params.id)
     try {
-        const updatedProduct = await productModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedProduct) return res.status(404).json({ message: "Product not found" });
+        if (!product) return res.status(404).json({ message: "Mahsulot topilmadi" });
+        if (product.author_id === req.user_id) {
+            const updatedProduct = await productModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        } else {
+            return res.status(403).json({ message: "Siz mahsulotning egasi emassiz" });
+        }
         return res.status(200).json(updatedProduct);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -63,10 +68,15 @@ exports.updateProduct = async (req, res) => {
 };
 
 exports.deleteProduct = async (req, res) => {
+    const product = productModel.findById(req.params.id)
     try {
-        const deletedProduct = await productModel.findByIdAndDelete(req.params.id);
-        if (!deletedProduct) return res.status(404).json({ message: "Product not found" });
-        return res.status(200).json({ message: "Product deleted successfully" });
+        if (!product) return res.status(404).json({ message: "Mahsulot topilmadi" });
+        if (product.author_id === req.user_id) {
+            const updatedProduct = await productModel.findByIdAndDelete(req.params.id);
+        } else {
+            return res.status(403).json({ message: "Siz mahsulotning egasi emassiz" });
+        }
+        return res.status(200).json(updatedProduct);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

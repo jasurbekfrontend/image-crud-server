@@ -21,6 +21,8 @@ exports.createUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
     const { username, password } = req.body;
+    console.log(process.env.JWT_SECRET);
+
     try {
         const user = await userModel.findOne({ username });
         if (!user) {
