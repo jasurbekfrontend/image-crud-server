@@ -35,6 +35,16 @@ const userSchema = new mongoose.Schema({
     max_price: {
         type: Number,
         default: 6
+    },
+    trades: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'Trade',
+        default: []
+    },
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
     }
 }, { timestamps: true });
 
